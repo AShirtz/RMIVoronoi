@@ -1,102 +1,59 @@
 package utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Set;
 import java.awt.Graphics;
 
 public class Triangle {
 
-	List<Point> endpoints = null;
+	Set<Point> endpoints = null;
 	Circumcircle cCircle = null;
 	
-	public Triangle(List<Point> points) {
+	public Triangle(Set<Point> points) {
 		//Error checking
 		if (points.size() != 3) {
 			throw new RuntimeException("Triangles must have three points.");
-		} else if (points.get(0).equals(points.get(1)) || points.get(0).equals(points.get(2)) || points.get(1).equals(points.get(2))) {
-			throw new RuntimeException("A triangle's corners must be distinct.");
 		}
 		this.endpoints = points;
 		this.cCircle = new Circumcircle(this);
-	}
-	
-	public static List<Point> orderPointsCCW (List<Point> points) {
-		List<Point> result = new ArrayList<Point>(3);
-
-		Point lowest = null;
-		for (Point p : points) {
-			if (lowest == null || (lowest.yCoord > p.yCoord) || ((lowest.yCoord == p.yCoord) && (lowest.xCoord > p.xCoord))) {
-				lowest = p;
-			}
-		}
-		
-		Point p1 = points.get((points.indexOf(lowest)+1)%points.size());
-		Point p2 = points.get((points.indexOf(lowest)+2)%points.size());
-		
-		double crossZ = (p1.xCoord - lowest.xCoord)*(p2.yCoord - lowest.yCoord) - (p1.yCoord - lowest.yCoord)*(p2.xCoord - lowest.xCoord);
-		
-		result.add(lowest);
-		if (crossZ > 0) {
-			result.add(p1);
-			result.add(p2);
-		} else if (crossZ < 0){
-			result.add(p2);
-			result.add(p1);
-		} else {
-			throw new RuntimeException("Collinear points don't make triangles.");
-		}
-		
-		return result;
 	}
 	
 	public boolean isInsideCircumcircleDistance (Point d) {
 		return this.cCircle.isInsideCircumcircle(d);
 	}
 	
-	
-	public boolean isInsideCircumcircle (Point p) {
-		//This ugly method is for computing the determinant of a specific matrix found at: (as of 2/23/2015)
-		//http://en.wikipedia.org/wiki/Delaunay_triangulation#Algorithms
-		double a = 
-				((this.endpoints.get(0).xCoord - p.xCoord)
-						*(this.endpoints.get(1).yCoord - p.yCoord)
-						*(((Math.pow(this.endpoints.get(2).xCoord, 2))-(Math.pow(p.xCoord, 2)))+((Math.pow(this.endpoints.get(2).yCoord, 2))-(Math.pow(p.yCoord, 2))))
-				+ ((this.endpoints.get(0).yCoord - p.yCoord)
-						*(this.endpoints.get(2).xCoord - p.xCoord)
-						*(((Math.pow(this.endpoints.get(1).xCoord, 2))-(Math.pow(p.xCoord, 2))))+((Math.pow(this.endpoints.get(1).yCoord, 2))-(Math.pow(p.yCoord, 2))))
-				+ ((this.endpoints.get(1).xCoord - p.xCoord)
-						*(this.endpoints.get(2).yCoord - p.yCoord)
-						*(((Math.pow(this.endpoints.get(0).xCoord, 2))-(Math.pow(p.xCoord, 2)))+((Math.pow(this.endpoints.get(0).yCoord, 2))-(Math.pow(p.yCoord, 2))))));
-		
-		double b = 
-				((this.endpoints.get(1).yCoord - p.yCoord)
-						*(this.endpoints.get(2).xCoord - p.xCoord)
-						*(((Math.pow(this.endpoints.get(0).xCoord, 2))-(Math.pow(p.xCoord, 2)))+((Math.pow(this.endpoints.get(0).yCoord, 2))-(Math.pow(p.yCoord, 2)))))
-				+((this.endpoints.get(0).yCoord - p.yCoord)
-						*(this.endpoints.get(1).xCoord - p.xCoord)
-						*(((Math.pow(this.endpoints.get(2).xCoord, 2))-(Math.pow(p.xCoord, 2)))+((Math.pow(this.endpoints.get(2).yCoord, 2))-(Math.pow(p.yCoord, 2)))))
-				+((this.endpoints.get(0).xCoord - p.xCoord)
-						*(this.endpoints.get(2).yCoord - p.yCoord)
-						*(((Math.pow(this.endpoints.get(1).xCoord, 2))-(Math.pow(p.xCoord, 2)))+((Math.pow(this.endpoints.get(1).yCoord, 2))-(Math.pow(p.yCoord, 2)))));
-				
-		return a > b;
-	}
-	
 	public Set<Line> generateLines () {
 		Set<Line> result = new HashSet<Line>();
-		result.add(new Line(this.endpoints.get(0), this.endpoints.get(1)));
-		result.add(new Line(this.endpoints.get(1), this.endpoints.get(2)));
-		result.add(new Line(this.endpoints.get(2), this.endpoints.get(0)));
+		Iterator <Point> iter = this.endpoints.iterator();
+		Point A = iter.next();
+		Point B = iter.next();
+		Point C = iter.next();
+		result.add(new Line(A, B));
+		result.add(new Line(B, C));
+		result.add(new Line(C, A));
 		return result;
+	}
+	
+	//Returns true if they share an edge, but not if they only share one vertex
+	public boolean isNeighbor (Triangle other) {
+		Set<Line> temp = this.generateLines();
+		temp.retainAll(other.generateLines());
+		return (temp.size() == 1);
 	}
 	
 	public static Set<Line> mapTrianglesToLines (Set<Triangle> tris) {
 		Set<Line> result = new HashSet<Line>();
 		for (Triangle t : tris) {
 			result.addAll(t.generateLines());
+		}
+		return result;
+	}
+	
+	public static Set<Point> mapTrianglesToPoints (Set<Triangle> tris) {
+		Set<Point> result = new HashSet<Point>();
+		for (Triangle t : tris) {
+			result.addAll(t.endpoints);
 		}
 		return result;
 	}
@@ -130,9 +87,13 @@ public class Triangle {
 	@Override
 	public String toString() {
 		String result = "";
-		result += this.endpoints.get(0).toString() + "\n";
-		result += this.endpoints.get(1).toString() + "\n";
-		result += this.endpoints.get(2).toString();
+		Iterator <Point> iter = this.endpoints.iterator();
+		Point A = iter.next();
+		Point B = iter.next();
+		Point C = iter.next();
+		result += A.toString() + "\n";
+		result += B.toString() + "\n";
+		result += C.toString();
 		return result;
 	}
 	

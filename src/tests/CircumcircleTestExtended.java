@@ -26,7 +26,7 @@ public class CircumcircleTestExtended {
 	public static void main (String[] args) {
 		Random rand = new Random();
 		Triangle t;
-		List<Point> pointList = new ArrayList<Point>();
+		Set<Point> pointList = new HashSet<Point>();
 		for (int j = 0; j < 3; j++) {
 			pointList.add(new Point(rand.nextInt(width), rand.nextInt(height)));
 		}
@@ -34,7 +34,6 @@ public class CircumcircleTestExtended {
 		
 		Point p = new Point(rand.nextInt(width), rand.nextInt(height));
 		
-		System.out.println(t.isInsideCircumcircle(p));
 		System.out.println(t.isInsideCircumcircleDistance(p));
 		System.out.println(new Circumcircle(t).isInsideCircumcircle(p));
 		

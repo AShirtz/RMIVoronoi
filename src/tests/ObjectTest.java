@@ -25,21 +25,17 @@ public class ObjectTest {
 		Point b = new Point(x2,y2);
 		Point c = new Point(x3,y3);
 		
-		//System.out.println(a.equals(b));
-		//System.out.println(a.equals(c));
-		//System.out.println(b.equals(c));
-		
 		Point a2 = new Point(x1,y1);
 		Point b2 = new Point(x2,y2);
 		Point c2 = new Point(x3,y3);
 		
-		List<Point> temp = new ArrayList<Point>(3);
+		Set<Point> temp = new HashSet<Point>(3);
 		temp.add(a);
 		temp.add(b);
 		temp.add(c);
 		Triangle t1 = new Triangle(temp);
 		
-		temp = new ArrayList<Point>(3);
+		temp = new HashSet<Point>(3);
 		temp.add(a2);
 		temp.add(b2);
 		temp.add(c2);
@@ -71,6 +67,19 @@ public class ObjectTest {
 		System.out.println("Set of lines from first triangle:\n"+t1Lines.toString());
 		t1Lines.removeAll(t2.generateLines());
 		System.out.println("Size of set of lines after removing from equivalent triangle "+t1Lines.size());
+		
+		temp = new HashSet<Point>(3);
+		temp.add(a2);
+		temp.add(b2);
+		temp.add(c2);
+		t1 = new Triangle(temp);
+		
+		temp = new HashSet<Point>(3);
+		temp.add(a);
+		temp.add(b2);
+		temp.add(c2);
+		t2 = new Triangle(temp);
+		System.out.println("Are " + t1.toString() + " and " + t2.toString() + " neighbors? " + t1.isNeighbor(t2));
 		
 		
 	}

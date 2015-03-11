@@ -1,12 +1,7 @@
 package utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class Algorithms {
@@ -17,32 +12,25 @@ public class Algorithms {
 		Set<Triangle> result = new HashSet<Triangle>();
 		
 		//Add the super triangle, will encompass all added points
-		List<Point> superPoints = new ArrayList<Point>(3);
-		{
-			double xmin = pointSet.iterator().next().xCoord;
-			double ymin = pointSet.iterator().next().yCoord;
-			double xmax = xmin;
-			double ymax = ymin;
-			
-			for (Point p : pointSet) {
-				xmin = (xmin < p.xCoord) ? (xmin) : (p.xCoord);
-				ymin = (ymin < p.yCoord) ? (ymin) : (p.yCoord);
-				xmax = (xmax > p.xCoord) ? (xmax) : (p.xCoord);
-				ymax = (ymax > p.yCoord) ? (ymax) : (p.yCoord);
-			}
-			
-			double dx = xmax - xmin;
-			double dy = ymax - ymin;
-			double dmax = (dx > dy) ? (dx) : (dy);
-			double xmid = (xmax + xmin) / 2.0;
-			double ymid = (ymax + ymin) / 2.0;
-			
-			superPoints.add(new Point (xmid - 2*dmax, ymid - dmax + 1));	//The Circumcircle stuff cannot deal with horizontal lines...
-			superPoints.add(new Point (xmid, ymid + 2*dmax));
-			superPoints.add(new Point (xmid + 2*dmax, ymid-dmax));
-		}
-		result.add(new Triangle(superPoints));
+		Triangle superTriangle = generateSuperTriangle(pointSet);
+		result.add(superTriangle);
+
+		result = BowyerWatsonInternal(result, pointSet);
 		
+		//If a triangle contains points from the super triangle remove it from the result
+		Set<Triangle> trianglesToRemove = new HashSet<Triangle>();
+		for (Triangle t : result) {
+			Set<Point> temp = new HashSet<Point>(t.endpoints);
+			temp.retainAll(superTriangle.endpoints);
+			if (!temp.isEmpty()) { trianglesToRemove.add(t); } 
+		}
+		result.removeAll(trianglesToRemove);
+		
+		return result;
+	}
+	
+	private static Set<Triangle> BowyerWatsonInternal (Set<Triangle> tris, Set<Point> pointSet) {
+		Set<Triangle> result = new HashSet<Triangle>(tris);
 		for (Point p : pointSet) {
 			
 			//Find all triangles that have been made invalid by the new point
@@ -75,25 +63,71 @@ public class Algorithms {
 			result.removeAll(invalidTriangles);
 			
 			for (Line l : polygon) {
-				List<Point> newTrianglePoints = new ArrayList<Point>();
-				Iterator <Point> iter = l.endpoints.iterator();
+				Set<Point> newTrianglePoints = new HashSet<Point>(3);
 				newTrianglePoints.add(p);
-				newTrianglePoints.add(iter.next());
-				newTrianglePoints.add(iter.next());
+				newTrianglePoints.addAll(l.endpoints);
 				result.add(new Triangle(newTrianglePoints));
 			}
-			result.size();
 		}
-		
-		//If a triangle contains points from the super triangle remove it from the result
-		Set<Triangle> trianglesToRemove = new HashSet<Triangle>();
-		for (Triangle t : result) {
-			if (t.endpoints.contains(superPoints.get(0)) || t.endpoints.contains(superPoints.get(1)) || t.endpoints.contains(superPoints.get(2))) {
-				trianglesToRemove.add(t);
-			}
-		}
-		result.removeAll(trianglesToRemove);
-		
 		return result;
+	}
+	
+	private static Triangle generateSuperTriangle (Set<Point> pointSet) {
+		Set<Point> result = new HashSet<Point>(3);
+		double xmin = pointSet.iterator().next().xCoord;
+		double ymin = pointSet.iterator().next().yCoord;
+		double xmax = xmin;
+		double ymax = ymin;
+		
+		for (Point p : pointSet) {
+			xmin = (xmin < p.xCoord) ? (xmin) : (p.xCoord);
+			ymin = (ymin < p.yCoord) ? (ymin) : (p.yCoord);
+			xmax = (xmax > p.xCoord) ? (xmax) : (p.xCoord);
+			ymax = (ymax > p.yCoord) ? (ymax) : (p.yCoord);
+		}
+		
+		double dx = xmax - xmin;
+		double dy = ymax - ymin;
+		double dmax = (dx > dy) ? (dx) : (dy);
+		double xmid = (xmax + xmin) / 2.0;
+		double ymid = (ymax + ymin) / 2.0;
+		
+		result.add(new Point (xmid - 2*dmax, ymid - dmax + 1));	//The Circumcircle stuff cannot deal with horizontal lines...
+		result.add(new Point (xmid, ymid + 2*dmax));
+		result.add(new Point (xmid + 2*dmax, ymid-dmax));
+		return new Triangle(result);
+	}
+	
+	public static Set<VoronoiCell> generateVoronoiFromDelaunay (Set<Triangle> tris) {
+		Set<Point> pointSet = Triangle.mapTrianglesToPoints(tris);
+		Set<VoronoiCell> result = new HashSet<VoronoiCell>();
+		for (Point p : pointSet) {
+			VoronoiCell curCell = new VoronoiCell();
+			curCell.generatingPoint = p;
+			Set<Triangle> adjacentTris = new HashSet<Triangle>();
+			for (Triangle t : tris) {
+				if (t.endpoints.contains(p)) { adjacentTris.add(t); }
+			}
+			Triangle curTri = adjacentTris.iterator().next();
+			Triangle prevTri = null;
+			for (int i = 0; i < adjacentTris.size(); i++) {
+				Triangle nextTri = null;
+				for (Triangle t : adjacentTris) {
+					if (!curTri.equals(t) && !t.equals(prevTri) && curTri.isNeighbor(t)) {
+						nextTri = t;
+						break;
+					}
+				}
+				if (nextTri == null) {
+					result.size();
+				}
+				curCell.edges.add(new Line(curTri.cCircle.centerPoint, nextTri.cCircle.centerPoint));
+				
+				prevTri = curTri;
+				curTri = nextTri;
+			}
+			result.add(curCell);
+		}
+		return null;
 	}
 }

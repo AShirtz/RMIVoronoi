@@ -1,15 +1,13 @@
 package utils;
 
 import java.awt.Graphics;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 public class Line {
 
-	Set<Point> endpoints = null;
+	public Set<Point> endpoints = null;
 
 	public Line(Point a, Point b) {
 		if (a.equals(b)) {
@@ -46,7 +44,10 @@ public class Line {
 		return true;
 	}
 
-
+	public double length () {
+		Iterator<Point> iter = this.endpoints.iterator();
+		return iter.next().distance(iter.next());
+	}
 
 	public void drawLine(Graphics g) {
 		Iterator <Point> iter = this.endpoints.iterator();

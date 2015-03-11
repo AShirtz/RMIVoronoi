@@ -13,8 +13,9 @@ import utils.Algorithms;
 import utils.Line;
 import utils.Point;
 import utils.Triangle;
+import utils.VoronoiCell;
 
-public class DelaunayDiagramTest {
+public class VoronoiTest {
 	
 	static int height = 1000;
 	static int width = 1000;
@@ -26,28 +27,23 @@ public class DelaunayDiagramTest {
 		Set<Point> pointSet = DataPoints.generatePoints(20, width, 0, height, 0);
 		
 		Set<Triangle> tris = Algorithms.BowyerWatson(pointSet);
+		Set<VoronoiCell> cells = Algorithms.generateVoronoiFromDelaunay(tris);
+		Set<Line> lines = VoronoiCell.mapCellsToLines(cells);
 		
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics g = image.getGraphics();
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, width, height);
+		g.setColor(Color.BLACK);
 		
+		for (Line l : lines) {
+			l.drawLine(g);
+		}
 		
-		for (Triangle t : tris) {
-			g.setColor(Color.BLACK);
-			t.drawTriangle(g);
-			//g.setColor(Color.BLUE);
-			//t.drawCircumcircle(g);
-		}
-		int i = 0;
-		g.setColor(Color.RED);
-		for (Point p : pointSet) {
-			//p.drawPointWithCount(g, i++);
-		}
 		g.dispose();
 		
 		try {
-			ImageIO.write(image, "bmp", new File("DelaunayTestFile.bmp"));
+			ImageIO.write(image, "bmp", new File("VoronoiTestFile.bmp"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
