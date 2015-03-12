@@ -16,11 +16,22 @@ public class Circumcircle {
 		Point B = iter.next();
 		Point C = iter.next();
 		
+		if (A.yCoord == B.yCoord) {
+			A.yCoord++;
+		}
+		if (B.yCoord == C.yCoord) {
+			C.yCoord++;
+		}
+		
 		Point p = new Point (0.5*(A.xCoord + B.xCoord), 0.5*(A.yCoord + B.yCoord));
 		Point q = new Point (0.5*(B.xCoord + C.xCoord), 0.5*(B.yCoord + C.yCoord));
-
+		
 		double u = - (A.xCoord - B.xCoord) / (A.yCoord - B.yCoord);
 		double v = - (B.xCoord - C.xCoord) / (B.yCoord - C.yCoord);
+		
+		if (Double.isNaN(u) || Double.isNaN(v) || Double.isInfinite(u) || Double.isInfinite(v) || u == v) {
+			throw new RuntimeException("Circumcircle failure.");
+		}
 		
 		double x = (q.yCoord + (u * p.xCoord) - (v * q.xCoord) - p.yCoord) / (u - v);
 		double y = (v * (x - q.xCoord) + q.yCoord);

@@ -23,7 +23,7 @@ public class DelaunayDiagramTest {
 	static int genZoneWidth = 400;
 	
 	public static void main(String[] args) {
-		Set<Point> pointSet = DataPoints.generatePoints(20, width, 0, height, 0);
+		Set<Point> pointSet = DataPoints.generateSetPoints(50, width, 0, height, 0);
 		
 		Set<Triangle> tris = Algorithms.BowyerWatson(pointSet);
 		
@@ -36,7 +36,7 @@ public class DelaunayDiagramTest {
 		for (Triangle t : tris) {
 			g.setColor(Color.BLACK);
 			t.drawTriangle(g);
-			//g.setColor(Color.BLUE);
+			g.setColor(Color.BLUE);
 			//t.drawCircumcircle(g);
 		}
 		int i = 0;

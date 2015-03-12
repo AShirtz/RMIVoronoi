@@ -24,7 +24,7 @@ public class VoronoiTest {
 	static int genZoneWidth = 400;
 	
 	public static void main(String[] args) {
-		Set<Point> pointSet = DataPoints.generatePoints(20, width, 0, height, 0);
+		Set<Point> pointSet = DataPoints.generateSetPoints(20, width, 0, height, 0);
 		
 		Set<Triangle> tris = Algorithms.BowyerWatson(pointSet);
 		Set<VoronoiCell> cells = Algorithms.generateVoronoiFromDelaunay(tris);
@@ -34,10 +34,20 @@ public class VoronoiTest {
 		Graphics g = image.getGraphics();
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, width, height);
-		g.setColor(Color.BLACK);
 		
+		for (Triangle t : tris) {
+			g.setColor(Color.BLACK);
+			t.drawTriangle(g);
+			g.setColor(Color.green);
+			//t.drawCircumcircle(g);
+		}
+		g.setColor(Color.RED);
 		for (Line l : lines) {
 			l.drawLine(g);
+		}
+		g.setColor(Color.blue);
+		for (Point p : VoronoiCell.mapCellsToGenPoints(cells)) {
+			p.drawPoint(g);
 		}
 		
 		g.dispose();

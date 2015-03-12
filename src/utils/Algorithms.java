@@ -1,10 +1,17 @@
 package utils;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 public class Algorithms {
+	
+	public static int diagramXMin = 0;
+	public static int diagramXMax = 1000;
+	public static int diagramYMin = 0;
+	public static int diagramYMax = 1000;
 
 	//Based on the pseudocode found at (as of 2/24/2015)
 	//http://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm#Pseudocode
@@ -32,7 +39,9 @@ public class Algorithms {
 	private static Set<Triangle> BowyerWatsonInternal (Set<Triangle> tris, Set<Point> pointSet) {
 		Set<Triangle> result = new HashSet<Triangle>(tris);
 		for (Point p : pointSet) {
-			
+			if (p.xCoord > 160 && p.xCoord < 170 && p.yCoord > 790 && p.yCoord < 810) {
+				result.size();
+			}
 			//Find all triangles that have been made invalid by the new point
 			Set<Triangle> invalidTriangles = new HashSet<Triangle>();
 			for (Triangle t : result) {
@@ -102,32 +111,69 @@ public class Algorithms {
 		Set<Point> pointSet = Triangle.mapTrianglesToPoints(tris);
 		Set<VoronoiCell> result = new HashSet<VoronoiCell>();
 		for (Point p : pointSet) {
-			VoronoiCell curCell = new VoronoiCell();
-			curCell.generatingPoint = p;
 			Set<Triangle> adjacentTris = new HashSet<Triangle>();
 			for (Triangle t : tris) {
 				if (t.endpoints.contains(p)) { adjacentTris.add(t); }
 			}
-			Triangle curTri = adjacentTris.iterator().next();
-			Triangle prevTri = null;
-			for (int i = 0; i < adjacentTris.size(); i++) {
-				Triangle nextTri = null;
-				for (Triangle t : adjacentTris) {
-					if (!curTri.equals(t) && !t.equals(prevTri) && curTri.isNeighbor(t)) {
-						nextTri = t;
+			result.add(voronoiHelper(p, adjacentTris));
+		}
+		return result;
+	}
+	
+	private static VoronoiCell generateVoronoiCell (Point generator, Set<Triangle> adjTris) {
+		VoronoiCell result = new VoronoiCell();
+		result.generatingPoint = generator;
+		
+		for (Triangle t1 : adjTris) {
+			for (Triangle t2 : adjTris) {
+				if (!t1.equals(t2) && t1.isNeighbor(t2)) {
+					Line l = new Line(t1.cCircle.centerPoint, t2.cCircle.centerPoint);
+					result.edges.add(l);
+				}
+			}
+		}
+		return result;
+	}
+	
+	private static VoronoiCell voronoiHelper (Point generator, Set<Triangle> adjTris) {
+		VoronoiCell result = new VoronoiCell();
+		result.generatingPoint = generator;
+		Set<Line> adjTriLines = new HashSet<Line>();
+		for (Line l : Triangle.mapTrianglesToLines(adjTris)) {
+			if (l.endpoints.contains(generator)) { adjTriLines.add(l); }
+		}
+		
+		//Find triangles that have this line
+		for (Line l : adjTriLines) {
+			Triangle t1 = null;
+			Triangle t2 = null;
+			for (Triangle t : adjTris) {
+				if (t.generateLines().contains(l)) {
+					if (t1 == null) {
+						t1 = t;
+						continue;
+					} else {
+						t2 = t;
 						break;
 					}
 				}
-				if (nextTri == null) {
-					result.size();
-				}
-				curCell.edges.add(new Line(curTri.cCircle.centerPoint, nextTri.cCircle.centerPoint));
-				
-				prevTri = curTri;
-				curTri = nextTri;
 			}
-			result.add(curCell);
+			//Found 2 triangles that share this line
+			//Constructing line between their Circumcircle centers
+			if (t2 != null) {
+				result.edges.add(new Line(t1.cCircle.centerPoint, t2.cCircle.centerPoint));
+			} else {		//This voronoi cell is on the outside of the tessellation, must make other point for line to connect to outside diagram boundry
+				Set<Point> temp = new HashSet<Point>(t1.endpoints);
+				temp.removeAll(l.endpoints);
+				Point farPoint = temp.iterator().next();
+
+				if (l.onSameSide(farPoint, t1.cCircle.centerPoint)) {
+					//The line should go toward the midpoint of l
+				} else {
+					//The line should go away from the midpoint of l
+				}
+			}
 		}
-		return null;
+		return result;
 	}
 }

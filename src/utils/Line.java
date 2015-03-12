@@ -48,6 +48,17 @@ public class Line {
 		Iterator<Point> iter = this.endpoints.iterator();
 		return iter.next().distance(iter.next());
 	}
+	
+	public boolean onSameSide (Point A, Point B) {
+		Iterator <Point> iter = this.endpoints.iterator();
+		Point C = iter.next();
+		Point D = iter.next();
+		
+		double result = 
+				((C.yCoord - D.yCoord)*(A.xCoord - C.xCoord)+(D.xCoord - C.xCoord)*(A.yCoord - C.yCoord)) *
+				((C.yCoord - D.yCoord)*(B.xCoord - C.xCoord)+(D.xCoord - C.xCoord)*(B.yCoord - C.yCoord));
+		return result > 0;
+	}
 
 	public void drawLine(Graphics g) {
 		Iterator <Point> iter = this.endpoints.iterator();
@@ -63,7 +74,7 @@ public class Line {
 		return "(" + a.toString() + ", " + b.toString() + ")";
 	}
 	
-	public static Set<Point> generatePoints (Set<Line> lines) {
+	public static Set<Point> mapLinesToPoints (Set<Line> lines) {
 		Set<Point> result = new HashSet<Point>();
 		for (Line l : lines) {
 			Iterator <Point> iter = l.endpoints.iterator();

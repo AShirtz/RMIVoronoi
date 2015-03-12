@@ -54,7 +54,7 @@ public class Point {
 	}
 	
 	public void drawPoint (Graphics g) {
-		g.fillOval((int)this.xCoord, (int)this.yCoord, 5, 5);
+		g.fillOval((int)this.xCoord - 4, (int)this.yCoord - 4, 8, 8);
 	}
 	
 	public void drawPointWithCount (Graphics g, int i) {

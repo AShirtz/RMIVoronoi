@@ -53,4 +53,12 @@ public class VoronoiCell {
 		}
 		return result;
 	}
+	
+	public static Set<Point> mapCellsToGenPoints (Set<VoronoiCell> cells) {
+		Set<Point> result = new HashSet<Point>(cells.size());
+		for (VoronoiCell c : cells) {
+			result.add(c.generatingPoint);
+		}
+		return result;
+	}
 }
