@@ -4,8 +4,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.awt.Graphics;
+import java.io.Serializable;
 
-public class Triangle {
+public class Triangle implements Serializable {
 
 	Set<Point> endpoints = null;
 	Circumcircle cCircle = null;

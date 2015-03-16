@@ -1,9 +1,11 @@
 package utils;
 
+import java.awt.Graphics;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class VoronoiCell {
+public class VoronoiCell implements Serializable {
 
 	Set<Line> edges = new HashSet<Line>();
 	Point generatingPoint = null;
@@ -22,6 +24,12 @@ public class VoronoiCell {
 		result = prime * result
 				+ ((generatingPoint == null) ? 0 : generatingPoint.hashCode());
 		return result;
+	}
+	
+	public void drawCell(Graphics g) {
+		for (Line l : this.edges) {
+			l.drawLine(g);
+		}
 	}
 	
 	@Override

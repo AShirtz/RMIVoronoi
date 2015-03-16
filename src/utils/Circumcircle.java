@@ -1,9 +1,10 @@
 package utils;
 
 import java.awt.Graphics;
+import java.io.Serializable;
 import java.util.Iterator;
 
-public class Circumcircle {
+public class Circumcircle implements Serializable {
 	
 	public static final double epsilon = 1.0;
 

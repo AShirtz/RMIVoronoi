@@ -19,6 +19,10 @@ public class DataPoints {
 		return result;
 	}
 	
+	public static void resetSetRand () {
+		setRand = new Random(1234567890l);
+	}
+	
 	public static Set<Point> generatePoints (int num, int xMax, int xMin, int yMax, int yMin) {
 		Set<Point> result = new HashSet<Point>(num);
 		for (int i = 0; i < num; i++) {

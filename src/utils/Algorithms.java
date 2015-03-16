@@ -1,18 +1,12 @@
 package utils;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 public class Algorithms {
 	
-	public static int diagramXMin = 0;
-	public static int diagramXMax = 1000;
-	public static int diagramYMin = 0;
-	public static int diagramYMax = 1000;
-
 	//Based on the pseudocode found at (as of 2/24/2015)
 	//http://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm#Pseudocode
 	public static Set<Triangle> BowyerWatson (Set<Point> pointSet) {
@@ -107,7 +101,7 @@ public class Algorithms {
 		return new Triangle(result);
 	}
 	
-	public static Set<VoronoiCell> generateVoronoiFromDelaunay (Set<Triangle> tris) {
+	public static Set<VoronoiCell> generateVoronoiFromDelaunay (Set<Triangle> tris, Diagram diag) {
 		Set<Point> pointSet = Triangle.mapTrianglesToPoints(tris);
 		Set<VoronoiCell> result = new HashSet<VoronoiCell>();
 		for (Point p : pointSet) {
@@ -115,27 +109,12 @@ public class Algorithms {
 			for (Triangle t : tris) {
 				if (t.endpoints.contains(p)) { adjacentTris.add(t); }
 			}
-			result.add(voronoiHelper(p, adjacentTris));
+			result.add(generateVoronoiCell(p, adjacentTris, diag));
 		}
 		return result;
 	}
 	
-	private static VoronoiCell generateVoronoiCell (Point generator, Set<Triangle> adjTris) {
-		VoronoiCell result = new VoronoiCell();
-		result.generatingPoint = generator;
-		
-		for (Triangle t1 : adjTris) {
-			for (Triangle t2 : adjTris) {
-				if (!t1.equals(t2) && t1.isNeighbor(t2)) {
-					Line l = new Line(t1.cCircle.centerPoint, t2.cCircle.centerPoint);
-					result.edges.add(l);
-				}
-			}
-		}
-		return result;
-	}
-	
-	private static VoronoiCell voronoiHelper (Point generator, Set<Triangle> adjTris) {
+	private static VoronoiCell generateVoronoiCell (Point generator, Set<Triangle> adjTris, Diagram diag) {
 		VoronoiCell result = new VoronoiCell();
 		result.generatingPoint = generator;
 		Set<Line> adjTriLines = new HashSet<Line>();
@@ -158,19 +137,25 @@ public class Algorithms {
 					}
 				}
 			}
+			
 			//Found 2 triangles that share this line
 			//Constructing line between their Circumcircle centers
 			if (t2 != null) {
 				result.edges.add(new Line(t1.cCircle.centerPoint, t2.cCircle.centerPoint));
-			} else {		//This voronoi cell is on the outside of the tessellation, must make other point for line to connect to outside diagram boundry
+			} else {		//This voronoi cell is on the outside of the tessellation, must make other point for line to connect to outside diagram boundary
+				
+				if (!diag.isInsideDiagram(t1.cCircle.centerPoint)) { continue; }
 				Set<Point> temp = new HashSet<Point>(t1.endpoints);
 				temp.removeAll(l.endpoints);
 				Point farPoint = temp.iterator().next();
+				
+				double slope = (-1) / l.slope(); 
+				List<Point> boundaryPoints = diag.createPointsOnBoundary(t1.cCircle.centerPoint, slope);
 
-				if (l.onSameSide(farPoint, t1.cCircle.centerPoint)) {
-					//The line should go toward the midpoint of l
+				if (l.onSameSide(boundaryPoints.get(0), farPoint)) {
+					result.edges.add(new Line(t1.cCircle.centerPoint, boundaryPoints.get(1)));
 				} else {
-					//The line should go away from the midpoint of l
+					result.edges.add(new Line(t1.cCircle.centerPoint, boundaryPoints.get(0)));
 				}
 			}
 		}

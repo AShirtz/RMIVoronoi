@@ -1,8 +1,9 @@
 package utils;
 
 import java.awt.Graphics;
+import java.io.Serializable;
 
-public class Point {
+public class Point implements Serializable {
 
 	double xCoord;
 	double yCoord;
@@ -16,6 +17,19 @@ public class Point {
 		double result = (this.xCoord - p.xCoord) * (this.xCoord - p.xCoord) + (this.yCoord - p.yCoord) * (this.yCoord - p.yCoord);
 		result = Math.sqrt(result);
 		return result;
+	}
+	
+	public static double slopeBetween (Point A, Point B) {
+		double rise = (A.yCoord - B.yCoord);
+		double run = (A.xCoord - B.xCoord);
+		if (run == 0.0) {
+			return Math.signum(rise) * Double.MAX_VALUE;
+		}
+		return rise / run;
+	}
+	
+	public static Point averagePoints (Point A, Point B) {
+		return new Point((A.xCoord + B.xCoord)/2, (A.yCoord + B.yCoord)/2);
 	}
 	
 	@Override

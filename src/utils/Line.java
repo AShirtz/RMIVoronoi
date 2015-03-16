@@ -1,11 +1,12 @@
 package utils;
 
 import java.awt.Graphics;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class Line {
+public class Line implements Serializable {
 
 	public Set<Point> endpoints = null;
 
@@ -58,6 +59,11 @@ public class Line {
 				((C.yCoord - D.yCoord)*(A.xCoord - C.xCoord)+(D.xCoord - C.xCoord)*(A.yCoord - C.yCoord)) *
 				((C.yCoord - D.yCoord)*(B.xCoord - C.xCoord)+(D.xCoord - C.xCoord)*(B.yCoord - C.yCoord));
 		return result > 0;
+	}
+	
+	public double slope () {
+		Iterator<Point> iter = this.endpoints.iterator();
+		return Point.slopeBetween(iter.next(), iter.next());
 	}
 
 	public void drawLine(Graphics g) {
