@@ -24,6 +24,16 @@ public class Triangle implements Serializable {
 		return this.cCircle.isInsideCircumcircle(d);
 	}
 	
+	public double getArea() {
+		Iterator<Line> iter = this.generateLines().iterator();
+		double distA = iter.next().length();
+		double distB = iter.next().length();
+		double distC = iter.next().length();
+		double s = (distA+distB+distC)*0.5;
+		
+		return Math.sqrt(s*(s-distA)*(s-distB)*(s-distC));
+	}
+	
 	public Set<Line> generateLines () {
 		Set<Line> result = new HashSet<Line>();
 		Iterator <Point> iter = this.endpoints.iterator();

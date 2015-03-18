@@ -24,7 +24,6 @@ public class VoronoiTest {
 		
 		Set<Triangle> tris = Algorithms.BowyerWatson(pointSet);
 		Set<VoronoiCell> cells = Algorithms.generateVoronoiFromDelaunay(tris, diag);
-		Set<Line> lines = VoronoiCell.mapCellsToLines(cells);
 		
 		BufferedImage image = new BufferedImage(diag.getWidth(), diag.getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics g = image.getGraphics();
@@ -37,13 +36,13 @@ public class VoronoiTest {
 			g.setColor(Color.green);
 			//t.drawCircumcircle(g);
 		}
-		g.setColor(Color.RED);
-		for (Line l : lines) {
-			l.drawLine(g);
+		g.setColor(Color.black);
+		for (VoronoiCell cell : cells) {
+			cell.drawCellWithArea(g, Color.blue);
 		}
 		g.setColor(Color.blue);
 		for (Point p : VoronoiCell.mapCellsToGenPoints(cells)) {
-			p.drawPoint(g);
+			//p.drawPoint(g);
 		}
 		
 		g.dispose();

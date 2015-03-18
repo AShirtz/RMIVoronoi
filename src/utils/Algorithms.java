@@ -119,6 +119,35 @@ public class Algorithms {
 		result.generatingPoint = generator;
 		Set<Line> adjTriLines = new HashSet<Line>();
 		for (Line l : Triangle.mapTrianglesToLines(adjTris)) {
+			if (l.endpoints.contains(result.generatingPoint)) { adjTriLines.add(l); }
+		}
+		
+		for (Line l : adjTriLines) {
+			Triangle t1 = null;
+			Triangle t2 = null;
+			for (Triangle t : adjTris) {
+				if (t.generateLines().contains(l)) {
+					if (t1 == null) { t1 = t; }
+					else			{ t2 = t; }
+				}
+			}
+			if (t2 == null) { result.truncated = true; }
+			else {
+				Line newLine = new Line(t1.cCircle.centerPoint, t2.cCircle.centerPoint);
+				if (diag.crossesDiagramBoundary(newLine)) { result.truncated = true; }
+				result.edges.add(newLine);
+			}
+		}
+		
+		return result;
+	}
+	
+	//This method has issues...
+	private static VoronoiCell generateVoronoiCellWithTruncation (Point generator, Set<Triangle> adjTris, Diagram diag) {
+		VoronoiCell result = new VoronoiCell();
+		result.generatingPoint = generator;
+		Set<Line> adjTriLines = new HashSet<Line>();
+		for (Line l : Triangle.mapTrianglesToLines(adjTris)) {
 			if (l.endpoints.contains(generator)) { adjTriLines.add(l); }
 		}
 		
@@ -141,9 +170,10 @@ public class Algorithms {
 			//Found 2 triangles that share this line
 			//Constructing line between their Circumcircle centers
 			if (t2 != null) {
+				if (!diag.isInsideDiagram(t1.cCircle.centerPoint) || !diag.isInsideDiagram(t2.cCircle.centerPoint)) { result.truncated = true; }
 				result.edges.add(new Line(t1.cCircle.centerPoint, t2.cCircle.centerPoint));
 			} else {		//This voronoi cell is on the outside of the tessellation, must make other point for line to connect to outside diagram boundary
-				
+				result.truncated = true;
 				if (!diag.isInsideDiagram(t1.cCircle.centerPoint)) { continue; }
 				Set<Point> temp = new HashSet<Point>(t1.endpoints);
 				temp.removeAll(l.endpoints);
@@ -159,6 +189,7 @@ public class Algorithms {
 				}
 			}
 		}
+		if (result.truncated) { VoronoiCell.truncateCell(result, diag); }		//Also has issues
 		return result;
 	}
 }
