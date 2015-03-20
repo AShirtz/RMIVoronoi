@@ -24,6 +24,12 @@ public class Diagram implements Serializable {
 		this.height = height;
 	}
 	
+	public void addPoint (Point p) {
+		Set<Point> temp = new HashSet<Point>();
+		temp.add(p);
+		this.addPoints(temp);
+	}
+	
 	//	This method can be improved by only updating voronoi cells whose generating points are 
 	//	in delaunay triangles that have been affected by new points being added.
 	public void addPoints (Set<Point> points) {

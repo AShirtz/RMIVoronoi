@@ -11,7 +11,7 @@ import java.util.Set;
 public class VoronoiCell implements Serializable {
 
 	Set<Line> edges = new HashSet<Line>();
-	Point generatingPoint = null;
+	public Point generatingPoint = null;
 	boolean truncated = false;
 	
 	@Override
@@ -41,6 +41,7 @@ public class VoronoiCell implements Serializable {
 	}
 	
 	public void drawCell(Graphics g) {
+		if (this.truncated) { return; }
 		for (Line l : this.edges) {
 			l.drawLine(g);
 		}
@@ -53,6 +54,15 @@ public class VoronoiCell implements Serializable {
 		if (this.truncated) { g.setColor(Color.red); }
 		g.drawString(Math.floor(this.getArea()) + "", (int) this.generatingPoint.xCoord, (int) this.generatingPoint.yCoord);
 		g.setColor(prevColor);
+	}
+	
+	public void fillCell (Graphics g) {
+		if (this.truncated) { return; }
+		for (Line l : this.edges) {
+			Set<Point> copy = new HashSet<Point>(l.endpoints);
+			copy.add(this.generatingPoint);
+			new Triangle(copy).fillTriangle(g);
+		}
 	}
 	
 	@Override
@@ -77,6 +87,14 @@ public class VoronoiCell implements Serializable {
 		return true;
 	}
 	
+	public static Set<VoronoiCell> getTruncatedCells (Set<VoronoiCell> cells) {
+		Set<VoronoiCell> result = new HashSet<VoronoiCell>();
+		for (VoronoiCell cell : cells) {
+			if (cell.truncated) { result.add(cell); }
+		}
+		return result;
+	}
+	
 	public static Set<Line> mapCellsToLines (Set<VoronoiCell> cells) {
 		Set<Line> result = new HashSet<Line>();
 		for (VoronoiCell c : cells) {
@@ -89,6 +107,14 @@ public class VoronoiCell implements Serializable {
 		Set<Point> result = new HashSet<Point>(cells.size());
 		for (VoronoiCell c : cells) {
 			result.add(c.generatingPoint);
+		}
+		return result;
+	}
+	
+	public static Set<VoronoiCell> genPointCellIntersection (Set<VoronoiCell> cells, Set<Point> points) {
+		Set<VoronoiCell> result = new HashSet<VoronoiCell>();
+		for (VoronoiCell cell : cells) {
+			if (points.contains(cell.generatingPoint)) { result.add(cell); }
 		}
 		return result;
 	}

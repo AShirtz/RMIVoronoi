@@ -134,11 +134,35 @@ public class Algorithms {
 			if (t2 == null) { result.truncated = true; }
 			else {
 				Line newLine = new Line(t1.cCircle.centerPoint, t2.cCircle.centerPoint);
-				if (diag.crossesDiagramBoundary(newLine)) { result.truncated = true; }
+				//if (diag.crossesDiagramBoundary(newLine)) { result.truncated = true; }
 				result.edges.add(newLine);
 			}
 		}
 		
+		return result;
+	}
+	
+	public static Set<Set<Point>> createGroups (Set<VoronoiCell> cells, Set<Line> delaunayLines) {
+		Set<Set<Point>> result = new HashSet<Set<Point>>();
+		Set<Point> copy = new HashSet<Point>(VoronoiCell.mapCellsToGenPoints(cells));
+		while (!copy.isEmpty()) {
+			Set<Point> seenPoints = new HashSet<Point>();
+			seenPoints.add(copy.iterator().next());
+			boolean running = true;
+			while (running) {
+				Set<Line> singleIntersect = Line.lineToPointSetIntersectionSingle(delaunayLines, seenPoints);
+				singleIntersect.removeAll(Line.lineToPointSetIntersectionDouble(delaunayLines, seenPoints));
+				if (singleIntersect.isEmpty()) {
+					Set<Point> truncated = VoronoiCell.mapCellsToGenPoints(VoronoiCell.getTruncatedCells(cells));
+					copy.removeAll(seenPoints);
+					seenPoints.removeAll(truncated);
+					result.add(seenPoints);
+					running = false;
+				} else {
+					seenPoints.addAll(Line.mapLinesToPoints(singleIntersect));
+				}
+			}
+		}
 		return result;
 	}
 	
@@ -192,4 +216,6 @@ public class Algorithms {
 		if (result.truncated) { VoronoiCell.truncateCell(result, diag); }		//Also has issues
 		return result;
 	}
+	
+	
 }

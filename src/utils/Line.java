@@ -89,4 +89,22 @@ public class Line implements Serializable {
 		}
 		return result;
 	}
+	
+	public static Set<Line> lineToPointSetIntersectionDouble (Set<Line> lines, Set<Point> points) {
+		Set<Line> result = new HashSet<Line>();
+		for (Line l : lines) {
+			Iterator<Point> iter = l.endpoints.iterator();
+			if (points.contains(iter.next()) && points.contains(iter.next())) { result.add(l); }
+		}
+		return result;
+	}
+	
+	public static Set<Line> lineToPointSetIntersectionSingle (Set<Line> lines, Set<Point> points) {
+		Set<Line> result = new HashSet<Line>();
+		for (Line l : lines) {
+			Iterator<Point> iter = l.endpoints.iterator();
+			if (points.contains(iter.next()) || points.contains(iter.next())) { result.add(l); }
+		}
+		return result;
+	}
 }

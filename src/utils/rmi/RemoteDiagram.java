@@ -8,7 +8,7 @@ import utils.Point;
 import utils.Triangle;
 import utils.VoronoiCell;
 
-public class RemoteDiagram extends java.rmi.server.UnicastRemoteObject implements RemoteInterface {
+public class RemoteDiagram extends java.rmi.server.UnicastRemoteObject implements RemoteDiagramInterface {
 	
 	private Diagram diag = null;
 

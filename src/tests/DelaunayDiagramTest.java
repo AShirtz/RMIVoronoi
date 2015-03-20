@@ -35,9 +35,9 @@ public class DelaunayDiagramTest {
 		
 		for (Triangle t : tris) {
 			g.setColor(Color.BLACK);
-			t.drawTriangle(g);
-			g.setColor(Color.BLUE);
-			//t.drawCircumcircle(g);
+			//t.drawTriangle(g);
+			g.setColor(Color.green);
+			t.drawCircumcircle(g);
 		}
 		int i = 0;
 		g.setColor(Color.RED);

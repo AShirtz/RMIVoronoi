@@ -114,6 +114,18 @@ public class Triangle implements Serializable {
 		}
 	}
 	
+	public void fillTriangle (Graphics g) {
+		int[] x = new int[3];
+		int[] y = new int[3];
+		int i = 0;
+		for (Point p : this.endpoints) {
+			x[i] = (int) p.xCoord;
+			y[i] = (int) p.yCoord;
+			i++;
+		}
+		g.fillPolygon(x, y, 3);
+	}
+	
 	public void drawCircumcircle (Graphics g) {
 		new Circumcircle(this).drawCircumcircle(g);
 	}

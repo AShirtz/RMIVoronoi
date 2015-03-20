@@ -11,14 +11,14 @@ import javax.imageio.ImageIO;
 
 import utils.Point;
 import utils.VoronoiCell;
-import utils.rmi.RemoteInterface;
+import utils.rmi.RemoteDiagramInterface;
 
 public class RMIClientTest {
 	
 	public static void main (String[] args) {
 		try {
-			RemoteInterface rDiag;
-			rDiag = (RemoteInterface) java.rmi.Naming.lookup("rmi://euclid.nmu.edu:8989/voronoi");
+			RemoteDiagramInterface rDiag;
+			rDiag = (RemoteDiagramInterface) java.rmi.Naming.lookup("rmi://euclid.nmu.edu:8989/voronoi");
 			Set<Point> points = DataPoints.generatePoints(20, rDiag.getWidth(), 0, rDiag.getHeight(), 0);
 			rDiag.addPoints(points);
 			
